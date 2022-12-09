@@ -1,23 +1,83 @@
 #![no_std]
 
 use core::arch::asm;
+use core::marker::PhantomData;
+use core::ops::Deref;
+#[doc = r"Number available in the CLIC for configuring priority"]
+pub const CLIC_PRIO_BITS: u8 = 4;
 
 pub use self::Interrupt as interrupt;
-//use bare_metal::Nr;
+pub use riscv_clic::peripheral::Peripherals as CorePeripherals;
+pub use riscv_clic::peripheral::CLIC;
 
-pub enum Interrupt {}
+// TODO: Find out why this was in the original implementation, it defines `interrupt` twice
+//pub use riscv_clic::interrupt;
 
-pub struct Peripherals {
-    _0: (),
+// interrupt handler functions
+extern "C" {
+    fn TEST();
 }
 
-impl Peripherals {
-    /// Kind of useless as there's no register API but this is required by RTFM
-    #[inline]
-    pub unsafe fn steal() -> Self {
-        Peripherals { _0: () }
+#[doc(hidden)]
+pub union Vector {
+    _handler: unsafe extern "C" fn(),
+    _reserved: u32,
+}
+
+// the interrupt vector itself
+#[doc(hidden)]
+#[link_section = ".vector_table.interrupts"]
+#[no_mangle]
+pub static __INTERRUPTS: [Vector; 1] = [Vector { _handler: TEST }];
+
+#[doc = r"Enumeration of all the interrupts."]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(usize)]
+pub enum Interrupt {
+    #[doc = "0 - TEST interrupt"]
+    TEST = 0,
+}
+
+unsafe impl riscv_clic::interrupt::InterruptNumber for Interrupt {
+    #[inline(always)]
+    fn number(self) -> usize {
+        self as usize
     }
 }
+
+// all non core peripherals
+#[no_mangle]
+static mut DEVICE_PERIPHERALS: bool = false;
+#[doc = r" All the peripherals."]
+#[allow(non_snake_case)]
+pub struct Peripherals {}
+
+impl Peripherals {
+    #[doc = r" Returns all the peripherals *once*."]
+    #[cfg(feature = "critical-section")]
+    #[inline]
+    pub fn take() -> Option<Self> {
+        critical_section::with(|_| {
+            if unsafe { DEVICE_PERIPHERALS } {
+                return None;
+            }
+            Some(unsafe { Peripherals::steal() })
+        })
+    }
+    #[doc = r" Unchecked version of `Peripherals::take`."]
+    #[doc = r""]
+    #[doc = r" # Safety"]
+    #[doc = r""]
+    #[doc = r" Each of the returned peripherals must be used at most once."]
+    #[inline]
+    pub unsafe fn steal() -> Self {
+        DEVICE_PERIPHERALS = true;
+        Peripherals {}
+    }
+}
+
+
+
 
 pub fn exit(main_res: u32) {
     let main_res = main_res | 0x80000000;
