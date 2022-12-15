@@ -13,23 +13,6 @@ pub use riscv_clic::peripheral::CLIC;
 // TODO: Find out why this was in the original implementation, it defines `interrupt` twice
 //pub use riscv_clic::interrupt;
 
-// interrupt handler functions
-extern "C" {
-    fn TEST();
-}
-
-#[doc(hidden)]
-pub union Vector {
-    _handler: unsafe extern "C" fn(),
-    _reserved: u32,
-}
-
-// the interrupt vector itself
-#[doc(hidden)]
-#[link_section = ".vector_table.interrupts"]
-#[no_mangle]
-pub static __INTERRUPTS: [Vector; 1] = [Vector { _handler: TEST }];
-
 #[doc = r"Enumeration of all the interrupts."]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(usize)]
