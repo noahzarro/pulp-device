@@ -80,11 +80,3 @@ pub fn exit(main_res: u32) {
     }
 }
 
-// adding interrupt vector
-global_asm!("
-.option norvc
-interrupt_vector:
-j int_0 
-j int_1 
-j int_2 
-");
