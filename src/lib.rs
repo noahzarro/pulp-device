@@ -1,6 +1,7 @@
 #![no_std]
 
 use core::arch::asm;
+use core::arch::global_asm;
 use core::marker::PhantomData;
 use core::ops::Deref;
 #[doc = r"Number available in the CLIC for configuring priority"]
@@ -78,3 +79,12 @@ pub fn exit(main_res: u32) {
         }
     }
 }
+
+// adding interrupt vector
+global_asm!("
+.option norvc
+interrupt_vector:
+j int_0 
+j int_1 
+j int_2 
+");
