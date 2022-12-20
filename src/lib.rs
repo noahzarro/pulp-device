@@ -20,6 +20,8 @@ pub use riscv_clic::peripheral::CLIC;
 pub enum Interrupt {
     #[doc = "0 - TEST interrupt"]
     TEST = 0,
+    #[doc = "0 - NEST interrupt"]
+    NEST = 1,
 }
 
 unsafe impl riscv_clic::interrupt::InterruptNumber for Interrupt {
@@ -80,3 +82,14 @@ pub fn exit(main_res: u32) {
     }
 }
 
+/*
+// adding interrupt vector
+global_asm!("
+.global
+.option norvc
+.interrupt_vector
+j int_0 
+j int_1 
+j int_2 
+");
+*/
