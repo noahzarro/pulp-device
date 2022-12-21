@@ -20,7 +20,7 @@ pub use riscv_clic::peripheral::CLIC;
 pub enum Interrupt {
     #[doc = "0 - TEST interrupt"]
     TEST = 0,
-    #[doc = "0 - NEST interrupt"]
+    #[doc = "1 - NEST interrupt"]
     NEST = 1,
 }
 
