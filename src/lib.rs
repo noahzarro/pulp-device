@@ -18,11 +18,33 @@ pub use riscv_clic::peripheral::CLIC;
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(usize)]
 pub enum Interrupt {
-    #[doc = "0 - TEST interrupt"]
-    TEST = 0,
-    #[doc = "1 - NEST interrupt"]
-    NEST = 1,
-}
+    #[doc = "0 - dummy interrupt 0"]
+    DUMMY0 = 0,
+    #[doc = "1 - dummy interrupt 1"]
+    DUMMY1 = 1,
+    #[doc = "2 - dummy interrupt 2"]
+    DUMMY2 = 2,
+    #[doc = "3 - dummy interrupt 3"]
+    DUMMY3 = 3,
+    #[doc = "4 - dummy interrupt 4"]
+    DUMMY4 = 4,
+    #[doc = "5 - dummy interrupt 5"]
+    DUMMY5 = 5,
+    #[doc = "6 - dummy interrupt 6"]
+    DUMMY6 = 6,
+    #[doc = "7 - dummy interrupt 7"]
+    DUMMY7 = 7,
+    #[doc = "8 - dummy interrupt 8"]
+    DUMMY8 = 8,
+    #[doc = "9 - dummy interrupt 9"]
+    DUMMY9 = 9,
+    #[doc = "10 - timer low interrupt"]
+    TIMER_LO = 10,
+    #[doc = "11 - dummy interrupt 11"]
+    DUMMY11 = 11,
+    #[doc = "12 - dummy interrupt 12"]
+    DUMMY12 = 12,
+    }
 
 unsafe impl riscv_clic::interrupt::InterruptNumber for Interrupt {
     #[inline(always)]
