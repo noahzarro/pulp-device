@@ -5,7 +5,7 @@ use core::arch::global_asm;
 use core::marker::PhantomData;
 use core::ops::Deref;
 #[doc = r"Number available in the CLIC for configuring priority"]
-pub const CLIC_PRIO_BITS: u8 = 4;
+pub const CLIC_PRIO_BITS: u8 = 8;
 
 pub use self::Interrupt as interrupt;
 pub use riscv_clic::peripheral::Peripherals as CorePeripherals;
