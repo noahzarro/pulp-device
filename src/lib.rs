@@ -1,9 +1,11 @@
 #![no_std]
 
 use core::arch::asm;
-use core::arch::global_asm;
-use core::marker::PhantomData;
-use core::ops::Deref;
+use core::{ops, marker::PhantomData};
+
+pub mod udma;
+pub mod uart;
+
 #[doc = r"Number available in the CLIC for configuring priority"]
 pub const CLIC_PRIO_BITS: u8 = 8;
 
@@ -58,7 +60,12 @@ unsafe impl riscv_clic::interrupt::InterruptNumber for Interrupt {
 static mut DEVICE_PERIPHERALS: bool = false;
 #[doc = r" All the peripherals."]
 #[allow(non_snake_case)]
-pub struct Peripherals {}
+pub struct Peripherals {
+    pub UDMA: UDMA,
+    pub UART: UART,
+    _priv: (),
+
+}
 
 impl Peripherals {
     #[doc = r" Returns all the peripherals *once*."]
@@ -80,11 +87,68 @@ impl Peripherals {
     #[inline]
     pub unsafe fn steal() -> Self {
         DEVICE_PERIPHERALS = true;
-        Peripherals {}
+        Peripherals {
+            UDMA: UDMA {
+                _marker: PhantomData,
+            },
+            UART: UART {
+                _marker: PhantomData,
+            },
+            _priv: (),
+        }
     }
 }
 
 
+
+/// Micro DMA Controller
+#[allow(clippy::upper_case_acronyms)]
+pub struct UDMA {
+    _marker: PhantomData<*const ()>,
+}
+
+
+/// UART Controller
+#[allow(clippy::upper_case_acronyms)]
+pub struct UART {
+    _marker: PhantomData<*const ()>,
+}
+
+
+unsafe impl Send for UDMA {}
+
+impl UDMA {
+    /// Pointer to the register block
+    //TODO insert correct address
+    pub const PTR: *const udma::RegisterBlock = 0x1A102000 as *const _; 
+}
+
+impl ops::Deref for UDMA {
+    type Target = self::udma::RegisterBlock;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*Self::PTR }
+    }
+}
+
+
+unsafe impl Send for UART {}
+
+impl UART {
+    /// Pointer to the register block
+    // TODO insert correct address
+    pub const PTR: *const uart::RegisterBlock = 0x1A10B000 as *const _;
+}
+
+impl ops::Deref for UART {
+    type Target = self::uart::RegisterBlock;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*Self::PTR }
+    }
+}
 
 
 pub fn exit(main_res: u32) {
@@ -103,15 +167,3 @@ pub fn exit(main_res: u32) {
         }
     }
 }
-
-/*
-// adding interrupt vector
-global_asm!("
-.global
-.option norvc
-.interrupt_vector
-j int_0 
-j int_1 
-j int_2 
-");
-*/

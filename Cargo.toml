@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 riscv-clic = { git = "https://github.com/noahzarro/riscv-clic.git" }
+volatile-register = "0.2.1"
